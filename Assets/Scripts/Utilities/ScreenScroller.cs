@@ -1,36 +1,16 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class ScreenScroller : MonoBehaviour {
 
-    public float scrollSpeed = 0.5f; //Camera scroll speed
+    public Transform target;
+    public float smoothSpeed = 10f;
+    public Vector3 offset;
 
-    // Use this for initialization
-    void Start () {
-        
-	}
-	
-	// Update is called once per frame
-	void Update () {
-        SmoothMoves();
-	}
-
-    //Camera Scrolling up
-    void SmoothMoves() {
-        transform.Translate(Vector2.up * scrollSpeed * Time.deltaTime);
-    }
-
-    //Follows player left & right only
-    public void PlayerFollow (float moveSpeed)
+    void LateUpdate()
     {
-        if (Input.GetKey("left"))
-        {
-            transform.Translate(Vector2.left * moveSpeed * Time.deltaTime);
-        }
-        if (Input.GetKey("right"))
-        {
-            transform.Translate(Vector2.right * moveSpeed * Time.deltaTime);
-        }
+        Vector3 desiredPosition = target.position + offset;
+        Vector3 smoothedPosition = Vector3.Lerp(transform.position, desiredPosition, smoothSpeed * Time.deltaTime);
+        transform.position = smoothedPosition;
     }
+
 }

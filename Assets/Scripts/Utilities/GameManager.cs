@@ -40,6 +40,9 @@ public class GameManager : MonoBehaviour
     //Update is called every frame.
     void Update()
     {
-
+        if (Input.GetKeyDown("c"))
+        {
+            Application.Quit();
+        }
     }
 }

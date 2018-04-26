@@ -8,12 +8,18 @@ public abstract class Enemy : MonoBehaviour {
     public float enemyMoveSpeed = 5f;
     public float enemyAttack = 10f;
     public float wanderRange = 5f;
+    public float enemyRange = 6f;
     public GameObject ePlayer;
+    public GameObject image;
+    public AudioClip[] clips;
+    public AudioSource speaker;
+    public bool movin = true;
 
 
 	// Use this for initialization
 	public virtual void Start () {
         ePlayer = GameObject.Find("Player");
+        StartCoroutine(Step());
 	}
 
     // Update is called once per frame
@@ -34,10 +40,33 @@ public abstract class Enemy : MonoBehaviour {
     //Get hit by something
     public IEnumerator Ouch(float dmg)
     {
-        GetComponent<Wander>().Off();
+        if (gameObject.tag == "Zombie")
+        {
+            GetComponent<Wander>().Off();
+        } else
+        {
+            GetComponent<HunterWander>().Off();
+        }
+        
         enemyHealth -= dmg;
+        int ran = Random.Range(5, 7);
+        speaker.PlayOneShot(clips[ran]);
         yield return new WaitForSeconds(.5f);
-        GetComponent<Wander>().On();
+
+        if (gameObject.tag == "Zombie")
+        {
+            GetComponent<Wander>().On();
+        }
+        else
+        {
+            GetComponent<HunterWander>().On();
+        }
+    }
+
+    public IEnumerator Death()
+    {
+        speaker.PlayOneShot(clips[0]);
+        yield return new WaitForSeconds(.2f);
     }
 
 
@@ -46,7 +75,27 @@ public abstract class Enemy : MonoBehaviour {
     {
         if (enemyHealth <= 0)
         {
+            movin = false;
+            StartCoroutine(Death());
+            Destroy(image);
             Destroy(gameObject);
+        } else
+        {
+            int ran = Random.Range(0, 100);
+            if (ran == 50 && gameObject.name == "Zombie"){
+                speaker.PlayOneShot(clips[8]);
+            }
+           
+        }
+    }
+
+    IEnumerator Step()
+    {
+        while (movin && gameObject.name == "Zombie")
+        {
+            yield return new WaitForSeconds(.4f);
+            int clip = Random.Range(1, 4);
+            speaker.PlayOneShot(clips[clip],.25f);
         }
     }
 

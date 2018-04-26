@@ -2,7 +2,7 @@
 using System.Collections;
 using Pathfinding;
 
-public class Wander : MonoBehaviour
+public class HunterWander : MonoBehaviour
 {
     public string facing = "";
     public bool chase = false;
@@ -16,12 +16,12 @@ public class Wander : MonoBehaviour
     void Start()
     {
         ai = GetComponent<IAstarAI>();
-        ai.maxSpeed = GetComponent<AllEnemies>().enemyMoveSpeed;
+        ai.maxSpeed = GetComponent<Hunter>().enemyMoveSpeed;
     }
 
     Vector3 PickRandomPoint()
     {
-        var point = Random.insideUnitSphere * GetComponent<AllEnemies>().wanderRange;
+        var point = Random.insideUnitSphere * GetComponent<Hunter>().wanderRange;
 
         //point.y = 0; - JKG commented this out
         point += ai.position;
@@ -41,7 +41,7 @@ public class Wander : MonoBehaviour
             }
             else
             {
-                ai.destination = GetComponent<AllEnemies>().ePlayer.transform.position;
+                ai.destination = GetComponent<Hunter>().ePlayer.transform.position;
             }
             ai.SearchPath();
             CheckDirection();
@@ -61,16 +61,19 @@ public class Wander : MonoBehaviour
             {
                 facing = "left";
 
-            } else if (xDiff >= 0)
+            }
+            else if (xDiff >= 0)
             {
                 facing = "right";
             }
-        } else if (yPower >= xPower)
+        }
+        else if (yPower >= xPower)
         {
             if (yDiff >= 0)
             {
                 facing = "up";
-            }else if (yDiff < 0)
+            }
+            else if (yDiff < 0)
             {
                 facing = "down";
             }

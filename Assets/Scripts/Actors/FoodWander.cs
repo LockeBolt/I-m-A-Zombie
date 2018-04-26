@@ -6,6 +6,11 @@ public class FoodWander : MonoBehaviour
 {
     //Wander range
     public float radius = 5f;
+    public string facing = "";
+    private float xDiff;
+    private float yDiff;
+    private float xPower;
+    private float yPower;
 
     IAstarAI ai;
 
@@ -32,7 +37,45 @@ public class FoodWander : MonoBehaviour
         {
             ai.destination = PickRandomPoint();
             ai.SearchPath();
+            CheckDirection();
         }
+    }
+
+    void CheckDirection()
+    {
+        xDiff = ai.destination.x - transform.position.x;
+        if (xDiff < 0) xPower = xDiff * -1;
+        yDiff = ai.destination.y - transform.position.y;
+        if (yDiff < 0) yPower = yDiff * -1;
+
+        if (xPower > yPower)
+        {
+            if (xDiff < 0)
+            {
+                facing = "left";
+
+            }
+            else if (xDiff >= 0)
+            {
+                facing = "right";
+            }
+        }
+        else if (yPower >= xPower)
+        {
+            if (yDiff >= 0)
+            {
+                facing = "up";
+            }
+            else if (yDiff < 0)
+            {
+                facing = "down";
+            }
+        }
+        //Debug.Log(facing);
+        //Debug.Log(xDiff);
+        //Debug.Log(ai.destination);
+        //Debug.Log(transform.position);
+        //Debug.Log(yDiff);
     }
 
     //Turn AI off

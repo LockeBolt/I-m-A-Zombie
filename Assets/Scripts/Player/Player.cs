@@ -10,8 +10,16 @@ public class Player : MonoBehaviour {
     public static bool terrainCollision = false;
     public static int playerHealth = 50;
     public static int playerAttack = 20;
+    public static Animator anim;
     public Slider healthBar;
     public GameObject swipeRadius;
+    public AudioClip[] clips;
+    public static AudioClip[] sClips;
+    public AudioSource speaker;
+    public static AudioSource sSpeaker;
+    public static GameObject scuffler;
+    public static int escapeCharge = 0;
+    public static Rigidbody2D rb;
 
     //Player state for management of player character
     public enum PlayerState
@@ -29,7 +37,12 @@ public class Player : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         playerState = PlayerState.idleState;
-	}
+        anim = GetComponent<Animator>();
+        rb = GetComponent<Rigidbody2D>();
+        sClips = clips;
+        sSpeaker = speaker;
+        StartCoroutine(Decay());
+    }
 	
 	// Update is called once per frame
 	void Update () {
@@ -44,6 +57,7 @@ public class Player : MonoBehaviour {
         {
             case 0:
                 playerState = PlayerState.idleState;
+                rb.WakeUp();
                 break;
             case 1:
                 playerState = PlayerState.eatingState;
@@ -59,6 +73,7 @@ public class Player : MonoBehaviour {
                 break;
             case 5:
                 playerState = PlayerState.hitState;
+                rb.Sleep();
                 break;
             case 6:
                 playerState = PlayerState.deadState;
@@ -78,29 +93,24 @@ public class Player : MonoBehaviour {
         switch (playerState)
         {
             case PlayerState.idleState:
-                Camera.main.GetComponent<ScreenScroller>().enabled = true;
                 swipeRadius.SetActive(false);
+                GetComponent<SpriteRenderer>().enabled = true;
                 break;
             case PlayerState.eatingState:
-                Camera.main.GetComponent<ScreenScroller>().enabled = true;
                 break;
             case PlayerState.hidingState:
-                Camera.main.GetComponent<ScreenScroller>().enabled = false; //stop camera scrolling
                 break;
             case PlayerState.hordeState:
-                Camera.main.GetComponent<ScreenScroller>().enabled = true;
                 break;
             case PlayerState.movingState:
-                Camera.main.GetComponent<ScreenScroller>().enabled = true;
                 break;
             case PlayerState.hitState:
-                Camera.main.GetComponent<ScreenScroller>().enabled = true;
+                GetComponent<SpriteRenderer>().enabled = false;
                 break;
             case PlayerState.deadState:
-                Camera.main.GetComponent<ScreenScroller>().enabled = true;
+                StartCoroutine(Die());
                 break;
             case PlayerState.attackState:
-                Camera.main.GetComponent<ScreenScroller>().enabled = true;
                 swipeRadius.SetActive(true);
                 break;
             default:
@@ -112,7 +122,16 @@ public class Player : MonoBehaviour {
     //Used to adjust the Player's health. Use negative numbers to subtract
     public static void AdjustHealth(int heart)
     {
+        int old = playerHealth;
         playerHealth += heart;
+        int ran = Random.Range(0, 2);
+        if (old > playerHealth)
+        {
+            sSpeaker.PlayOneShot(sClips[ran]);
+        } else
+        {
+            sSpeaker.PlayOneShot(sClips[3]);
+        }
     }
 
     //make dead if too low
@@ -123,5 +142,18 @@ public class Player : MonoBehaviour {
         {
             playerState = PlayerState.deadState;
         }
+    }
+
+    IEnumerator Decay()
+    {
+        yield return new WaitForSeconds(1f);
+        playerHealth -= 2;
+    }
+
+    IEnumerator Die()
+    {
+        sSpeaker.PlayOneShot(sClips[0]);
+        yield return new WaitForSeconds(1.5f);
+        Destroy(gameObject);
     }
 }
